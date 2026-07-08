@@ -69,6 +69,10 @@ npm run db:setup
 
 File database akan dibuat di `./ordeo.db` (dapat diubah lewat `DATABASE_URL`).
 
+> Catatan: aplikasi **membuat tabel & mengisi data paket secara otomatis** saat server
+> pertama kali dijalankan (lihat `server/db/index.ts`). Jadi langkah 3 & 4 bersifat
+> opsional untuk lokal, dan **tidak wajib** di server produksi.
+
 ---
 
 ## 🧑‍💻 Menjalankan
@@ -86,6 +90,75 @@ npm run preview
 
 ---
 
+## ☁️ Deploy ke VPS Ubuntu
+
+Penyebab umum "web bisa diakses tapi API 500" adalah **database belum siap** atau
+**modul native `better-sqlite3` tidak dikompilasi di server**. Ikuti langkah berikut
+langsung **di VPS** (jangan menyalin `node_modules`/`.output` dari macOS/Windows —
+binary `better-sqlite3` berbeda antar OS):
+
+```bash
+# 1. Clone & masuk folder
+git clone <repo-url> ordeo && cd ordeo
+
+# 2. Pastikan build tools tersedia (untuk kompilasi better-sqlite3)
+sudo apt-get update && sudo apt-get install -y build-essential python3
+
+# 3. Install dependency (better-sqlite3 akan dikompilasi untuk Linux)
+npm install
+
+# 4. Siapkan environment — WAJIB ganti JWT_SECRET & set path DB absolut
+cp .env.example .env
+# contoh isi .env:
+#   JWT_SECRET=ganti-dengan-string-acak-panjang
+#   DATABASE_URL=/var/www/ordeo/ordeo.db
+
+# 5. Build untuk produksi
+npm run build
+
+# 6. Jalankan (tabel & seed dibuat otomatis saat start)
+npm start          # = PORT=3100 node .output/server/index.mjs
+```
+
+### Menjalankan sebagai service (systemd)
+
+Buat file `/etc/systemd/system/ordeo.service`:
+
+```ini
+[Unit]
+Description=Ordeo Web
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/ordeo
+Environment=NODE_ENV=production
+Environment=PORT=3100
+Environment=JWT_SECRET=ganti-dengan-string-acak-panjang
+Environment=DATABASE_URL=/var/www/ordeo/ordeo.db
+ExecStart=/usr/bin/node .output/server/index.mjs
+Restart=always
+User=www-data
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ordeo
+sudo journalctl -u ordeo -f   # cek log bila masih error
+```
+
+> Penting:
+> - Set `WorkingDirectory` dan `DATABASE_URL` absolut agar file DB dibuat di lokasi
+>   yang benar dan dapat ditulis oleh user service (`www-data`).
+> - Pastikan folder DB dapat ditulis: `sudo chown -R www-data:www-data /var/www/ordeo`.
+> - Jika sebelumnya sudah pernah `npm install` di OS lain, jalankan
+>   `npm rebuild better-sqlite3` di VPS.
+
+---
+
 ## 🗄️ Skrip Database
 
 | Perintah            | Fungsi                                            |
@@ -94,6 +167,9 @@ npm run preview
 | `npm run db:generate` | Generate file migrasi SQL dari schema           |
 | `npm run db:seed`   | Isi data paket langganan                          |
 | `npm run db:setup`  | Jalankan `db:push` lalu `db:seed`                 |
+
+> Tabel & data paket juga dibuat otomatis saat aplikasi start, jadi skrip ini hanya
+> diperlukan bila Anda ingin mengelola migrasi secara manual.
 
 ---
 
