@@ -40,9 +40,9 @@ watch(
 
         <div class="hidden items-center gap-3 lg:flex">
           <template v-if="isLoggedIn">
-            <span class="text-sm text-ink-500">Hai, {{ user?.name?.split(' ')[0] }}</span>
+            <NuxtLink to="/account/profile" class="btn-ghost">Hai, {{ user?.name?.split(' ')[0] }}</NuxtLink>
             <button class="btn-secondary" @click="logout">Keluar</button>
-            <NuxtLink to="/pricing" class="btn-primary">Kelola Langganan</NuxtLink>
+            <NuxtLink to="/account/invoices" class="btn-primary">Akun Saya</NuxtLink>
           </template>
           <template v-else>
             <NuxtLink to="/login" class="btn-ghost">Masuk</NuxtLink>
@@ -78,8 +78,9 @@ watch(
         </NuxtLink>
         <div class="grid gap-2 pt-3">
           <template v-if="isLoggedIn">
-            <NuxtLink to="/pricing" class="btn-primary w-full">Kelola Langganan</NuxtLink>
-            <button class="btn-secondary w-full" @click="logout">Keluar</button>
+            <NuxtLink to="/account/profile" class="btn-secondary w-full">Profil</NuxtLink>
+            <NuxtLink to="/account/invoices" class="btn-primary w-full">Invoice Saya</NuxtLink>
+            <button class="btn-ghost w-full" @click="logout">Keluar</button>
           </template>
           <template v-else>
             <NuxtLink to="/login" class="btn-secondary w-full">Masuk</NuxtLink>

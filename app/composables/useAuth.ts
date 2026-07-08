@@ -60,5 +60,25 @@ export function useAuth() {
     await navigateTo('/')
   }
 
-  return { user, isLoggedIn, login, register, logout }
+  async function updateProfile(payload: {
+    name: string
+    whatsapp: string
+    businessName: string
+  }) {
+    const data = await $fetch<{ user: AuthUser }>('/api/account/profile', {
+      method: 'PATCH',
+      body: payload,
+    })
+    user.value = data.user
+    return data.user
+  }
+
+  async function changePassword(currentPassword: string, newPassword: string) {
+    return $fetch<{ success: boolean }>('/api/account/password', {
+      method: 'PATCH',
+      body: { currentPassword, newPassword },
+    })
+  }
+
+  return { user, isLoggedIn, login, register, logout, updateProfile, changePassword }
 }
