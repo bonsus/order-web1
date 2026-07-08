@@ -23,10 +23,10 @@ const columns = [
   {
     title: 'Perusahaan',
     links: [
-      { label: 'Tentang Ordeo', to: '/#workflow' },
+      { label: 'Tentang Ordeo', to: '/about' },
+      { label: 'Kontak', to: '/contact' },
       { label: 'FAQ', to: '/#faq' },
       { label: 'Mulai Sekarang', to: '/register' },
-      { label: 'Masuk', to: '/login' },
     ],
   },
   {

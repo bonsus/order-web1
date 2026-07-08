@@ -6,8 +6,8 @@ const route = useRoute()
 const navLinks = [
   { label: 'Fitur', to: '/features' },
   { label: 'Harga', to: '/pricing' },
-  { label: 'Alur Kerja', to: '/#workflow' },
-  { label: 'FAQ', to: '/#faq' },
+  { label: 'Tentang', to: '/about' },
+  { label: 'Kontak', to: '/contact' },
 ]
 
 watch(
